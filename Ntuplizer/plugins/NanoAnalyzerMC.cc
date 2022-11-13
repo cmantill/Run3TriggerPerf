@@ -414,9 +414,9 @@ private:
   float                JpsiKE_e1_bestL1phi  ;
   float                JpsiKE_e1_bestL1Deta ;
   float                JpsiKE_e1_bestL1Dphi ;
-  float                JpsiKE_e1_genMatchpt  ;
-  float                JpsiKE_e1_genMatcheta ;
-  float                JpsiKE_e1_genMatchphi  ;
+  float                JpsiKE_e1_genMatchPt  ;
+  float                JpsiKE_e1_genMatchEta ;
+  float                JpsiKE_e1_genMatchPhi  ;
   float                JpsiKE_e1_genMatchDeta ;
   float                JpsiKE_e1_genMatchDphi ;
   
@@ -434,9 +434,9 @@ private:
   float                JpsiKE_e2_bestL1phi  ;
   float                JpsiKE_e2_bestL1Deta ;
   float                JpsiKE_e2_bestL1Dphi ;
-  float                JpsiKE_e2_genMatchpt  ;
-  float                JpsiKE_e2_genMatcheta ;
-  float                JpsiKE_e2_genMatchphi  ;
+  float                JpsiKE_e2_genMatchPt  ;
+  float                JpsiKE_e2_genMatchEta ;
+  float                JpsiKE_e2_genMatchPhi  ;
   float                JpsiKE_e2_genMatchDeta ;
   float                JpsiKE_e2_genMatchDphi ;
  
@@ -525,12 +525,11 @@ void NanoAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   nvtx = vertices_->size();
 
-  hist->Fill(1);
+  hist->Fill(0);
   // pT thresholds for di-ele trigger
   std::vector<std::string> pt_thr_v_string{"10", "9p5", "9", "8p5", "8", "7p5", "7", "6p5", "6", "5p5", "5", "4p5", "4"};
 
   // Loop over HLT paths
-  bool DoubleEleTriggered = false;
   const edm::TriggerNames& trigNames = iEvent.triggerNames(*HLTtriggers_);
   std::string elejetTriggerName="";
   // 
@@ -545,17 +544,12 @@ void NanoAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if(trigNames.triggerName(i).find(DoubleEleTrigName)!= std::string::npos){
 	if(HLTtriggers_->accept(i)){
 	  DoubleEle_fired[j]=1;
-	  DoubleEleTriggered = true;
 	  //std::cout << "Event = " << event << " : DoubleEle_fired[j] fired for j = " << std::endl;
       	}
 	//std::cout << "Event = " << event << " : DoubleEle_fired[j] fired for j = " << j << " ??? " << HLTtriggers_->accept(i) << std::endl;
       }
     }
   }
-  std::cout << std::endl;
-  std::cout << "Any DoubleEle triggered " << DoubleEleTriggered << std::endl;
-  if(DoubleEleTriggered) hist->Fill(2);
-
 
   // Take needed collections
   iEvent.getByToken(electronToken_ , electrons_    );
@@ -588,9 +582,8 @@ void NanoAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // Loop over offline electrons
 
   if (electroncollection.size() < 2) return; 
-  std::cout << "More than two electrons found" << std::endl;
-  hist->Fill(3);
-  hist->Fill(4);
+  //std::cout << "More than two electrons found" << std::endl;
+  hist->Fill(1);
 
   // Tools for tracks
   const TransientTrackBuilder* builder = &iSetup.getData(ttkToken);
@@ -621,8 +614,8 @@ void NanoAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (e1.charge() + e2.charge() !=0) continue;
       if (jpsi_mass < 1.0) continue; 
       if (jpsi_mass > 4.0) continue;
-      std::cout << "Suitable Jpsi electron pair" << std::endl;
-      std::cout << "event = " << event << ": jpsi_mass = " << jpsi_mass << ", jpsi_max_pt = " << jpsi_max_pt << ", jpsi_pt = " << jpsi_pt << std::endl;
+      //std::cout << "Suitable Jpsi electron pair" << std::endl;
+      //std::cout << "event = " << event << ": jpsi_mass = " << jpsi_mass << ", jpsi_max_pt = " << jpsi_max_pt << ", jpsi_pt = " << jpsi_pt << std::endl;
 
       if(jpsi_max_pt < jpsi_pt){
 	jpsi_max_pt = jpsi_pt;
@@ -640,26 +633,31 @@ void NanoAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // At least 1 reco J/psi
   if(jpsi_max_pt == -1) return;  
-  std::cout << "At least 1 Jpsi recoed" << std::endl;
-  hist->Fill(5);
+  //std::cout << "At least 1 Jpsi recoed" << std::endl;
+  hist->Fill(2);
 
   // std::cout << "event = " << event << ", jpsi_max_pt = " << jpsi_max_pt << " => passed " << std::endl;
 
   // Match with gen electron
+  std::vector<float> genMatchPt   (2, -99);
+  std::vector<float> genMatchEta  (2, -99);
+  std::vector<float> genMatchPhi  (2, -99);
+  std::vector<float> genMatchDeta (2, -99);
+  std::vector<float> genMatchDphi (2, -99);
   std::vector<pat::Electron         > electronpair;
-  std::vector<pat::PackedGenParticle> electronpairmatched;      // pair of jpsi electrons
+  //std::vector<pat::PackedGenParticle> electronpairmatched;      // pair of jpsi electrons
 
   electronpair       .clear();
-  electronpairmatched.clear();
+  //electronpairmatched.clear();
 
   electronpair.push_back(electroncollection[mcidx_e1]);
   electronpair.push_back(electroncollection[mcidx_e2]);
 
-  std::cout << "electron pair e1 pt " << electronpair[0].pt() << std::endl;
-  std::cout << "electron pair e2 pt " << electronpair[1].pt() << std::endl;
+  //std::cout << "electron pair e1 pt " << electronpair[0].pt() << std::endl;
+  //std::cout << "electron pair e2 pt " << electronpair[1].pt() << std::endl;
 
-  electronpairmatched.push_back((*packedgenparticles_)[0]); // initialize with first member of packedgenp
-  electronpairmatched.push_back((*packedgenparticles_)[1]); // initialize with first member of packedgenp
+  //electronpairmatched.push_back((*packedgenparticles_)[0]); // initialize with first member of packedgenp
+  //electronpairmatched.push_back((*packedgenparticles_)[1]); // initialize with first member of packedgenp
 
   TVector3 eleTV3, objTV3;
   for (size_t iele =0; iele < electronpair.size(); iele++){
@@ -680,39 +678,44 @@ void NanoAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       
       if (deltaPhi < 0.2 && deltaEta < 0.07 && deltaR < best_match_dR ){
 	best_match_dR = deltaR;
-	electronpairmatched.at(iele) = genp;
+	//electronpairmatched.at(iele) = genp;
+	genMatchPt[iele]   = objTV3.Pt(); 
+	genMatchEta[iele]  = objTV3.Eta(); 
+	genMatchPhi[iele]  = objTV3.Phi(); 
+	genMatchDeta[iele] = deltaEta; 
+	genMatchDphi[iele] = deltaPhi; 
       }
     }
   }
 
-  std::cout << fmt::v8::format("e1 offline pt= {},   eta= {},   phi= {}", electronpair[0].pt()       , electronpair[0].eta()       , electronpair[0].phi())       << std::endl;
-  std::cout << fmt::v8::format("e1 gen     pt= {},   eta= {},   phi= {}", electronpairmatched[0].pt(), electronpairmatched[0].eta(), electronpairmatched[0].phi()) << std::endl;
+  //std::cout << fmt::v8::format("e1 offline pt= {},   eta= {},   phi= {}", electronpair[0].pt()       , electronpair[0].eta()       , electronpair[0].phi())       << std::endl;
+  //std::cout << fmt::v8::format("e1 gen     pt= {},   eta= {},   phi= {}", electronpairmatched[0].pt(), electronpairmatched[0].eta(), electronpairmatched[0].phi()) << std::endl;
     
     
 
-  // Inputs to kin fit
-  const reco::GsfTrackRef track1_electron = electroncollection[mcidx_e1].gsfTrack();
-  const reco::GsfTrackRef track2_electron = electroncollection[mcidx_e2].gsfTrack();
-  reco::TransientTrack tt1_electron = (*builder).build(track1_electron);
-  reco::TransientTrack tt2_electron = (*builder).build(track2_electron);
-  KinematicParticleFactoryFromTransientTrack pFactory;
-  std::vector<RefCountedKinematicParticle> electronParticles;
-  electronParticles.push_back(pFactory.particle(tt1_electron, aux.electron_mass, chi, ndf, aux.electron_sigma));
-  electronParticles.push_back(pFactory.particle(tt2_electron, aux.electron_mass, chi, ndf, aux.electron_sigma));
+  // // Inputs to kin fit
+  // const reco::GsfTrackRef track1_electron = electroncollection[mcidx_e1].gsfTrack();
+  // const reco::GsfTrackRef track2_electron = electroncollection[mcidx_e2].gsfTrack();
+  // reco::TransientTrack tt1_electron = (*builder).build(track1_electron);
+  // reco::TransientTrack tt2_electron = (*builder).build(track2_electron);
+  // KinematicParticleFactoryFromTransientTrack pFactory;
+  // std::vector<RefCountedKinematicParticle> electronParticles;
+  // electronParticles.push_back(pFactory.particle(tt1_electron, aux.electron_mass, chi, ndf, aux.electron_sigma));
+  // electronParticles.push_back(pFactory.particle(tt2_electron, aux.electron_mass, chi, ndf, aux.electron_sigma));
   
-  std::cout << electronParticles[0] << " " << electronParticles[1] << std::endl;
+  // std::cout << electronParticles[0] << " " << electronParticles[1] << std::endl;
 
-  // Kinematic fit of the two electrons to a common vtx
-  RefCountedKinematicParticle jpsi_part;
-  RefCountedKinematicVertex jpsi_vertex;
-  RefCountedKinematicTree jpTree;
-  Bool_t jpsifit_flag;
-  std::tie(jpsifit_flag, jpsi_part, jpsi_vertex, jpTree) = aux.KinematicFit(electronParticles, -1, -1);
+  // // Kinematic fit of the two electrons to a common vtx
+  // RefCountedKinematicParticle jpsi_part;
+  // RefCountedKinematicVertex jpsi_vertex;
+  // RefCountedKinematicTree jpTree;
+  // Bool_t jpsifit_flag;
+  // std::tie(jpsifit_flag, jpsi_part, jpsi_vertex, jpTree) = aux.KinematicFit(electronParticles, -1, -1);
 
-  // Successfull kin fit
-  if(!jpsifit_flag) return;
-  hist->Fill(6);
-  
+  // // Successfull kin fit
+  // if(!jpsifit_flag) return;
+  hist->Fill(3);
+
   
   // Loop over di-ele paths, when fired
   for(int j=0; j<int(pt_thr_v_string.size()); j++){
@@ -732,19 +735,19 @@ void NanoAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	std::vector<std::string> pathNamesAll = obj.pathNames(false);
 	bool isPathExist = false;
 	for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
-	  // std::cout << "event " << event << " => path " << h << " => " << pathNamesAll[h] << std::endl;
+	  //std::cout << "event " << event << " => path " << h << " => " << pathNamesAll[h] << std::endl;
 	  if(pathNamesAll[h].find(DoubleEleTrigName)!= std::string::npos) {
 	    isPathExist = true;   
-	    // std::cout << "event " << event << " => found" << std::endl;
+	    //std::cout << "event " << event << " => found" << std::endl;
 	  }
 	}
 	if(!isPathExist) continue;
 	
-	// std::cout << "ok, this object matches our diele path " << DoubleEleTrigName << std::endl;
+	//std::cout << "ok, this object matches our diele path " << DoubleEleTrigName << std::endl;
 	
 	// check if the object is from the correct filter
 	for (unsigned hh = 0; hh < obj.filterLabels().size(); ++hh){	
-	  // std::cout << "event " << event << " => hh = " << hh << ", obj.filterLabels()[hh] = " << obj.filterLabels()[hh] << std::endl;
+	  //std::cout << "event " << event << " => hh = " << hh << ", obj.filterLabels()[hh] = " << obj.filterLabels()[hh] << std::endl;
 	  if(obj.filterLabels()[hh].find(DoubleEleObjName) != std::string::npos) {
 	    if (dieleobj1_pt[j]<0) {
 	      dieleobj1_pt[j]  = obj.pt();
@@ -886,11 +889,16 @@ void NanoAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   JpsiKE_e1_bestL1phi  = bestMatchE1_phi;
   JpsiKE_e1_bestL1Deta = bestMatchE1_Deta;  
   JpsiKE_e1_bestL1Dphi = bestMatchE1_Dphi;  
-  JpsiKE_e1_genMatchpt   = electronpairmatched[0].pt();
-  JpsiKE_e1_genMatcheta  = electronpairmatched[0].eta();
-  JpsiKE_e1_genMatchphi  = electronpairmatched[0].phi();
-  JpsiKE_e1_genMatchDeta = fabs(electronpairmatched[0].eta() - electroncollection[mcidx_e1].eta());
-  JpsiKE_e1_genMatchDphi = fabs(electronpairmatched[0].phi() - electroncollection[mcidx_e1].phi());
+  // JpsiKE_e1_genMatchPt   = electronpairmatched[0].pt();
+  // JpsiKE_e1_genMatchEta  = electronpairmatched[0].eta();
+  // JpsiKE_e1_genMatchPhi  = electronpairmatched[0].phi();
+  // JpsiKE_e1_genMatchDeta = fabs(electronpairmatched[0].eta() - electroncollection[mcidx_e1].eta());
+  // JpsiKE_e1_genMatchDphi = fabs(electronpairmatched[0].phi() - electroncollection[mcidx_e1].phi());
+  JpsiKE_e1_genMatchPt   = genMatchPt[0];
+  JpsiKE_e1_genMatchEta  = genMatchEta[0];
+  JpsiKE_e1_genMatchPhi  = genMatchPhi[0];
+  JpsiKE_e1_genMatchDeta = genMatchDeta[0];
+  JpsiKE_e1_genMatchDphi = genMatchDphi[0];
 
   JpsiKE_e2_pt   = electroncollection[mcidx_e2].pt();
   JpsiKE_e2_eta  = electroncollection[mcidx_e2].eta();
@@ -906,21 +914,31 @@ void NanoAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   JpsiKE_e2_bestL1phi  = bestMatchE2_phi;
   JpsiKE_e2_bestL1Deta = bestMatchE2_Deta;  
   JpsiKE_e2_bestL1Dphi = bestMatchE2_Dphi;  
-  JpsiKE_e2_genMatchpt   = electronpairmatched[1].pt();
-  JpsiKE_e2_genMatcheta  = electronpairmatched[1].eta();
-  JpsiKE_e2_genMatchphi  = electronpairmatched[1].phi();
-  JpsiKE_e2_genMatchDeta = fabs(electronpairmatched[1].eta() - electroncollection[mcidx_e2].eta());
-  JpsiKE_e2_genMatchDphi = fabs(electronpairmatched[1].phi() - electroncollection[mcidx_e2].phi());
+  // JpsiKE_e2_genMatchPt   = electronpairmatched[1].pt();
+  // JpsiKE_e2_genMatchEta  = electronpairmatched[1].eta();
+  // JpsiKE_e2_genMatchPhi  = electronpairmatched[1].phi();
+  // JpsiKE_e2_genMatchDeta = fabs(electronpairmatched[1].eta() - electroncollection[mcidx_e2].eta());
+  // JpsiKE_e2_genMatchDphi = fabs(electronpairmatched[1].phi() - electroncollection[mcidx_e2].phi());
+  JpsiKE_e2_genMatchPt   = genMatchPt[1];
+  JpsiKE_e2_genMatchEta  = genMatchEta[1];
+  JpsiKE_e2_genMatchPhi  = genMatchPhi[1];
+  JpsiKE_e2_genMatchDeta = genMatchDeta[1];
+  JpsiKE_e2_genMatchDphi = genMatchDphi[1];
 
-  JpsiKE_Jpsi_pt  = jpsi_part->currentState().globalMomentum().perp();
-  JpsiKE_Jpsi_eta = jpsi_part->currentState().globalMomentum().eta();
-  JpsiKE_Jpsi_phi = jpsi_part->currentState().globalMomentum().phi();
+  // JpsiKE_Jpsi_pt  = jpsi_part->currentState().globalMomentum().perp();
+  // JpsiKE_Jpsi_eta = Jpsi_part->currentState().globalMomentum().eta();
+  // JpsiKE_Jpsi_phi = jpsi_part->currentState().globalMomentum().phi();
+  // JpsiKE_Jpsi_mass = jpsi_part->currentState().mass();
+  // JpsiKE_Jpsi_vprob = TMath::Prob(jpsi_part->chiSquared(), jpsi_part->degreesOfFreedom());
+  JpsiKE_Jpsi_pt  = -999.;
+  JpsiKE_Jpsi_eta = -999.;
+  JpsiKE_Jpsi_phi = -999.;
+  JpsiKE_Jpsi_mass = -999.;
+  JpsiKE_Jpsi_vprob = -999.;
   JpsiKE_Jpsi_nonfit_pt  = jpsi_tlv_highest.Pt();
   JpsiKE_Jpsi_nonfit_eta = jpsi_tlv_highest.Eta();
   JpsiKE_Jpsi_nonfit_phi = jpsi_tlv_highest.Phi();
-  JpsiKE_Jpsi_mass = jpsi_part->currentState().mass();
   JpsiKE_Jpsi_mass_nofit = jpsi_tlv_highest.M();
-  JpsiKE_Jpsi_vprob = TMath::Prob(jpsi_part->chiSquared(), jpsi_part->degreesOfFreedom());
   JpsiKE_elesDr = ele1TV3.DeltaR(ele2TV3); 
 
   tree_->Fill();
@@ -975,14 +993,14 @@ void NanoAnalyzerMC::createBranch() {
   tree_->Branch("JpsiKE_e1_vy"   , &JpsiKE_e1_vy    );
   tree_->Branch("JpsiKE_e1_vz"   , &JpsiKE_e1_vz    );
   tree_->Branch("JpsiKE_e1_passMVA"   , &JpsiKE_e1_passMVA    );
-  tree_->Branch("JpsiKE_e1_bestL1pt",   &JpsiKE_e1_bestL1pt   );
+  tree_->Branch("JpsiKE_e1_bestL1pt"  , &JpsiKE_e1_bestL1pt   );
   tree_->Branch("JpsiKE_e1_bestL1eta" , &JpsiKE_e1_bestL1eta  );
   tree_->Branch("JpsiKE_e1_bestL1phi" , &JpsiKE_e1_bestL1phi  );
   tree_->Branch("JpsiKE_e1_bestL1Deta", &JpsiKE_e1_bestL1Deta );
   tree_->Branch("JpsiKE_e1_bestL1Dphi", &JpsiKE_e1_bestL1Dphi );
-  tree_->Branch("JpsiKE_e1_genMatchpt",   &JpsiKE_e1_genMatchpt   );
-  tree_->Branch("JpsiKE_e1_genMatcheta" , &JpsiKE_e1_genMatcheta  );
-  tree_->Branch("JpsiKE_e1_genMatchphi" , &JpsiKE_e1_genMatchphi  );
+  tree_->Branch("JpsiKE_e1_genMatchPt",   &JpsiKE_e1_genMatchPt   );
+  tree_->Branch("JpsiKE_e1_genMatchEta" , &JpsiKE_e1_genMatchEta  );
+  tree_->Branch("JpsiKE_e1_genMatchPhi" , &JpsiKE_e1_genMatchPhi  );
   tree_->Branch("JpsiKE_e1_genMatchDeta", &JpsiKE_e1_genMatchDeta );
   tree_->Branch("JpsiKE_e1_genMatchDphi", &JpsiKE_e1_genMatchDphi );
 
@@ -1050,15 +1068,15 @@ void NanoAnalyzerMC::createBranch() {
   tree_->Branch("JpsiKE_e2_vx"   , &JpsiKE_e2_vx    );
   tree_->Branch("JpsiKE_e2_vy"   , &JpsiKE_e2_vy    );
   tree_->Branch("JpsiKE_e2_vz"   , &JpsiKE_e2_vz    );
-  tree_->Branch("JpsiKE_e2_passMVA"   , &JpsiKE_e2_passMVA    );
-  tree_->Branch("JpsiKE_e2_bestL1pt",   &JpsiKE_e2_bestL1pt );
-  tree_->Branch("JpsiKE_e2_bestL1eta" , &JpsiKE_e2_bestL1eta );
-  tree_->Branch("JpsiKE_e2_bestL1phi" , &JpsiKE_e2_bestL1phi );
+  tree_->Branch("JpsiKE_e2_passMVA"    , &JpsiKE_e2_passMVA    );
+  tree_->Branch("JpsiKE_e2_bestL1pt"   , &JpsiKE_e2_bestL1pt   );
+  tree_->Branch("JpsiKE_e2_bestL1eta"  , &JpsiKE_e2_bestL1eta  );
+  tree_->Branch("JpsiKE_e2_bestL1phi"  , &JpsiKE_e2_bestL1phi  );
   tree_->Branch("JpsiKE_e2_bestL1Deta" , &JpsiKE_e2_bestL1Deta );
   tree_->Branch("JpsiKE_e2_bestL1Dphi" , &JpsiKE_e2_bestL1Dphi );
-  tree_->Branch("JpsiKE_e2_genMatchpt",   &JpsiKE_e2_genMatchpt );
-  tree_->Branch("JpsiKE_e2_genMatcheta" , &JpsiKE_e2_genMatcheta );
-  tree_->Branch("JpsiKE_e2_genMatchphi" , &JpsiKE_e2_genMatchphi );
+  tree_->Branch("JpsiKE_e2_genMatchPt"   , &JpsiKE_e2_genMatchPt   );
+  tree_->Branch("JpsiKE_e2_genMatchEta"  , &JpsiKE_e2_genMatchEta  );
+  tree_->Branch("JpsiKE_e2_genMatchPhi"  , &JpsiKE_e2_genMatchPhi  );
   tree_->Branch("JpsiKE_e2_genMatchDeta" , &JpsiKE_e2_genMatchDeta );
   tree_->Branch("JpsiKE_e2_genMatchDphi" , &JpsiKE_e2_genMatchDphi );
 
@@ -1165,9 +1183,9 @@ void NanoAnalyzerMC::reset(void){
   JpsiKE_e1_bestL1phi  = -99;
   JpsiKE_e1_bestL1Deta = -99;
   JpsiKE_e1_bestL1Dphi = -99;
-  JpsiKE_e1_genMatchpt = -99;
-  JpsiKE_e1_genMatcheta  = -99;
-  JpsiKE_e1_genMatchphi  = -99;
+  JpsiKE_e1_genMatchPt = -99;
+  JpsiKE_e1_genMatchEta  = -99;
+  JpsiKE_e1_genMatchPhi  = -99;
   JpsiKE_e1_genMatchDeta = -99;
   JpsiKE_e1_genMatchDphi = -99;
 
@@ -1185,9 +1203,9 @@ void NanoAnalyzerMC::reset(void){
   JpsiKE_e2_bestL1phi = -99;
   JpsiKE_e2_bestL1Deta = -99;
   JpsiKE_e2_bestL1Dphi = -99;
-  JpsiKE_e2_genMatchpt = -99;
-  JpsiKE_e2_genMatcheta = -99;
-  JpsiKE_e2_genMatchphi = -99;
+  JpsiKE_e2_genMatchPt = -99;
+  JpsiKE_e2_genMatchEta = -99;
+  JpsiKE_e2_genMatchPhi = -99;
   JpsiKE_e2_genMatchDeta = -99;
   JpsiKE_e2_genMatchDphi = -99;
 
