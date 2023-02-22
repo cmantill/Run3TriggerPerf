@@ -451,6 +451,11 @@ private:
   float                JpsiKE_Jpsi_vprob    ;
   float                JpsiKE_elesDr    ;
 
+  float                JpsiGen_pt  ;
+  float                JpsiGen_eta ;
+  float                JpsiGen_phi ;
+  float                JpsiGen_mass;
+
   std::vector<int> DoubleEle_fired{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
   std::vector<float> dieleobj1_pt{-999., -999., -999., -999., -999., -999., -999., -999., -999., -999., -999., -999., -999.};
@@ -644,20 +649,11 @@ void NanoAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   std::vector<float> genMatchPhi  (2, -99);
   std::vector<float> genMatchDeta (2, -99);
   std::vector<float> genMatchDphi (2, -99);
+
   std::vector<pat::Electron         > electronpair;
-  //std::vector<pat::PackedGenParticle> electronpairmatched;      // pair of jpsi electrons
-
   electronpair       .clear();
-  //electronpairmatched.clear();
-
   electronpair.push_back(electroncollection[mcidx_e1]);
   electronpair.push_back(electroncollection[mcidx_e2]);
-
-  //std::cout << "electron pair e1 pt " << electronpair[0].pt() << std::endl;
-  //std::cout << "electron pair e2 pt " << electronpair[1].pt() << std::endl;
-
-  //electronpairmatched.push_back((*packedgenparticles_)[0]); // initialize with first member of packedgenp
-  //electronpairmatched.push_back((*packedgenparticles_)[1]); // initialize with first member of packedgenp
 
   TVector3 eleTV3, objTV3;
   for (size_t iele =0; iele < electronpair.size(); iele++){
@@ -668,17 +664,18 @@ void NanoAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     for (size_t igenp = 0; igenp < packedgenparticles_->size(); ++igenp){
 
       pat::PackedGenParticle genp = (*packedgenparticles_)[igenp];
+      //std::cout << "pdgID= " << genp.pdgId() << std::endl;
+
       if (abs(genp.pdgId()) != 11) continue;
 
       objTV3.SetPtEtaPhi( genp.pt(), genp.eta(), genp.phi() );
- 
+      
       Float_t deltaEta = fabs(eleTV3.Eta() - objTV3.Eta());
       Float_t deltaPhi = fabs(eleTV3.DeltaPhi(objTV3));
-      Float_t	deltaR = fabs(eleTV3.DeltaR(objTV3));
+      Float_t	deltaR   = fabs(eleTV3.DeltaR(objTV3));
       
       if (deltaPhi < 0.2 && deltaEta < 0.07 && deltaR < best_match_dR ){
 	best_match_dR = deltaR;
-	//electronpairmatched.at(iele) = genp;
 	genMatchPt[iele]   = objTV3.Pt(); 
 	genMatchEta[iele]  = objTV3.Eta(); 
 	genMatchPhi[iele]  = objTV3.Phi(); 
@@ -688,10 +685,26 @@ void NanoAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
 
-  //std::cout << fmt::v8::format("e1 offline pt= {},   eta= {},   phi= {}", electronpair[0].pt()       , electronpair[0].eta()       , electronpair[0].phi())       << std::endl;
-  //std::cout << fmt::v8::format("e1 gen     pt= {},   eta= {},   phi= {}", electronpairmatched[0].pt(), electronpairmatched[0].eta(), electronpairmatched[0].phi()) << std::endl;
+  //Reconstruct and store Jpsi gen pt,eta,phi,mass
+  TLorentzVector tlv_gen_e1;
+  TLorentzVector tlv_gen_e2;
+  if (genMatchPt[0] > 0. & genMatchPt[1] > 0. & genMatchPt[0]!=genMatchPt[1]){
+    tlv_gen_e1.SetPtEtaPhiM(genMatchPt[0], genMatchEta[0], genMatchPhi[0], aux.mass_electron);
+    tlv_gen_e2.SetPtEtaPhiM(genMatchPt[1], genMatchEta[1], genMatchPhi[1], aux.mass_electron);
+
+    TLorentzVector tlv_gen_jpsi = (tlv_gen_e1 + tlv_gen_e2);
+    JpsiGen_pt   = tlv_gen_jpsi.Pt();
+    JpsiGen_eta  = tlv_gen_jpsi.Eta();
+    JpsiGen_phi  = tlv_gen_jpsi.Phi();
+    JpsiGen_mass = tlv_gen_jpsi.M();
+  }
+
+  // std::cout << fmt::v8::format("e1 offline pt= {},   eta= {},   phi= {}", electronpair[0].pt()       , electronpair[0].eta()       , electronpair[0].phi()) << std::endl;
+  // std::cout << fmt::v8::format("e1 gen     pt= {},   eta= {},   phi= {}", genMatchPt[0]              , genMatchEta[0]              , genMatchPhi[0]       ) << std::endl;
+  // std::cout << fmt::v8::format("e2 offline pt= {},   eta= {},   phi= {}", electronpair[1].pt()       , electronpair[1].eta()       , electronpair[1].phi()) << std::endl;
+  // std::cout << fmt::v8::format("e2 gen     pt= {},   eta= {},   phi= {}", genMatchPt[1]              , genMatchEta[1]              , genMatchPhi[1]       ) << std::endl;
     
-    
+
 
   // // Inputs to kin fit
   // const reco::GsfTrackRef track1_electron = electroncollection[mcidx_e1].gsfTrack();
@@ -873,7 +886,7 @@ void NanoAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       bestMatchE2_Dphi = fabs(ele2TV3.DeltaPhi(l1objTV3));
     }
   }
-
+  
   // Infos about JPsi candidate
   JpsiKE_e1_pt   = electroncollection[mcidx_e1].pt();
   JpsiKE_e1_eta  = electroncollection[mcidx_e1].eta();
@@ -945,7 +958,7 @@ void NanoAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   return;
 
-  } //NanoAnalyzerMC::analyze ends
+} //NanoAnalyzerMC::analyze ends
 
 
 //**************************************************
@@ -973,7 +986,7 @@ NanoAnalyzerMC::endJob()
 
 //include methods for special trigger variables
 //#include "NanoTrigger.cc.forinclude"
-
+ 
 //define this as a plug-in
 
 // branch title creation
@@ -1150,6 +1163,11 @@ void NanoAnalyzerMC::createBranch() {
   tree_->Branch("DoubleEle4p5_fired", &DoubleEle_fired[11] );
   tree_->Branch("DoubleEle4_fired", &DoubleEle_fired[12] );
 
+  tree_->Branch("JpsiGen_pt"  , &JpsiGen_pt   );
+  tree_->Branch("JpsiGen_eta" , &JpsiGen_eta  );
+  tree_->Branch("JpsiGen_phi" , &JpsiGen_phi  );
+  tree_->Branch("JpsiGen_mass", &JpsiGen_mass );
+
   tree_->Branch("JpsiKE_Jpsi_pt", &JpsiKE_Jpsi_pt );
   tree_->Branch("JpsiKE_Jpsi_nonfit_pt", &JpsiKE_Jpsi_nonfit_pt );
   tree_->Branch("JpsiKE_Jpsi_eta", &JpsiKE_Jpsi_eta );
@@ -1209,6 +1227,10 @@ void NanoAnalyzerMC::reset(void){
   JpsiKE_e2_genMatchDeta = -99;
   JpsiKE_e2_genMatchDphi = -99;
 
+  JpsiGen_pt   = -99;
+  JpsiGen_eta  = -99;
+  JpsiGen_phi  = -99;
+  JpsiGen_mass = -99;
 
   JpsiKE_Jpsi_pt = -99;
   JpsiKE_Jpsi_nonfit_pt = -99;
