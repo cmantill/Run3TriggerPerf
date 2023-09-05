@@ -121,9 +121,7 @@ process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff"
 
 
 inputFiles= [
-    '/store/user/jodedra/BuTOKJPSI_with_2022v15triggers_nanoaod/BuTOKJPSI_with_2022v15triggers/SUMMER22_NANOAOD/230830_235159/0000/BPH-Run3Summer22EENanoAODv11-00020_11.root'
-    # '/store/user/jodedra/BuTOKJPSI_with_2022v15triggers_nanoaod/BuTOKJPSI_with_2022v15triggers/SUMMER22_NANOAOD/230830_235159/0000/BPH-Run3Summer22EENanoAODv11-00020_1.root' # jay with singleEle included
-    # '/store/user/jodedra/BuTOjpsiKEE20220831fiftyMbettersplitting/BuTOjpsiKEE20220831fiftyMbettersplitting/SUMMER22_MINIAOD/220902_093638/0000/PPD-Run3Summer22MiniAODv3-00002_inMINIAODSIM_1.root' # private MC (jay)
+    '/store/user/jodedra/BuTOKJPSI_with_2022v15triggers_nanoaod/BuTOKJPSI_with_2022v15triggers/SUMMER22_NANOAOD/230830_235159/0000/BPH-Run3Summer22EENanoAODv11-00020_1.root' # singleEle included
     # '/store/data/Run2022G/ParkingDoubleElectronLowMass0/MINIAOD/PromptReco-v1/000/362/438/00000/615f788b-ea6d-4c96-b743-91bcdd1b7c38.root' #data
 ]
 
