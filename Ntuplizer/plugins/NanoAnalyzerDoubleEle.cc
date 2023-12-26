@@ -544,8 +544,8 @@ void NanoAnalyzerDoubleEle::analyze(const edm::Event& iEvent, const edm::EventSe
   for (unsigned int i = 0, n = HLTtriggers_->size(); i < n; ++i) {
     
     // Check if the single ele trigger path fired
-    if(trigNames.triggerName(i).find("HLT_SingleEle8_v")!= std::string::npos){
-      //if(trigNames.triggerName(i).find("HLT_SingleEle8_SingleEGL1_v")!= std::string::npos){
+    // if(trigNames.triggerName(i).find("HLT_SingleEle8_v")!= std::string::npos){
+    if(trigNames.triggerName(i).find("HLT_SingleEle8_SingleEGL1_v")!= std::string::npos){
       if(HLTtriggers_->accept(i)){
 	      singleeleTriggerName=trigNames.triggerName(i);
         SingleEle_fired=1;
@@ -622,8 +622,8 @@ void NanoAnalyzerDoubleEle::analyze(const edm::Event& iEvent, const edm::EventSe
 
       int eleObjNumber = -1;
       for (unsigned hh = 0; hh < obj.filterLabels().size(); ++hh){	
-	      if(obj.filterLabels()[hh].find("hltSingleEle8ValidHitsFilter") != std::string::npos) {
-	      //if(obj.filterLabels()[hh].find("hltSingleEle8SingleEGL1ValidHitsFilter") != std::string::npos) {
+	      // if(obj.filterLabels()[hh].find("hltSingleEle8ValidHitsFilter") != std::string::npos) {
+	      if(obj.filterLabels()[hh].find("hltSingleEle8SingleEGL1ValidHitsFilter") != std::string::npos) {
 	          eleObjNumber = hh;
 	      }
       }
@@ -740,12 +740,12 @@ void NanoAnalyzerDoubleEle::analyze(const edm::Event& iEvent, const edm::EventSe
       float jpsi_mass = tlv_jpsi.M();
       float jpsi_pt = tlv_jpsi.Pt();
 
-      // std::cout << "event = " << event << ", jpsi_mass = " << jpsi_mass << std::endl;
+      std::cout << "event = " << event << ", jpsi_mass = " << jpsi_mass << std::endl;
 
       if (e1.charge() + e2.charge() !=0) continue;
       if (jpsi_mass < 2.0) continue; 
       if (jpsi_mass > 4.0) continue;
-      // std::cout << "event = " << event << ": jpsi_mass = " << jpsi_mass << ", jpsi_max_pt = " << jpsi_max_pt << ", jpsi_pt = " << jpsi_pt << std::endl;
+      std::cout << "event = " << event << ": jpsi_mass = " << jpsi_mass << ", jpsi_max_pt = " << jpsi_max_pt << ", jpsi_pt = " << jpsi_pt << std::endl;
 
       if(jpsi_max_pt < jpsi_pt){
 	      jpsi_max_pt = jpsi_pt;
@@ -766,7 +766,7 @@ void NanoAnalyzerDoubleEle::analyze(const edm::Event& iEvent, const edm::EventSe
   if(jpsi_max_pt == -1) return;  
   hist->Fill(5);
 
-  // std::cout << "event = " << event << ", jpsi_max_pt = " << jpsi_max_pt << " => passed " << std::endl;
+  std::cout << "event = " << event << ", jpsi_max_pt = " << jpsi_max_pt << " => passed " << std::endl;
 
 
   // Inputs to kin fit
@@ -788,6 +788,7 @@ void NanoAnalyzerDoubleEle::analyze(const edm::Event& iEvent, const edm::EventSe
 
   // Successfull kin fit
   if(!jpsifit_flag) return;
+  std::cout << "KinFit Success" << std::endl;
   hist->Fill(6);
   
   
