@@ -30,7 +30,9 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 # 2022 data
 #process.GlobalTag.globaltag = '123X_dataRun3_Prompt_v8'
 #process.GlobalTag.globaltag = '123X_dataRun3_Express_v10'
-process.GlobalTag.globaltag = '123X_dataRun3_Prompt_v12'
+#process.GlobalTag.globaltag = '123X_dataRun3_Prompt_v12'
+# 2023 data
+process.GlobalTag.globaltag = '130X_dataRun3_Express_v2'
 
 ##################################################################################
 
