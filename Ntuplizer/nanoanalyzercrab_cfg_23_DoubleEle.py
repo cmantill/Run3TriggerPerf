@@ -65,7 +65,8 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 ##################################################################################
 
 # Load jet correction services for all jet algoritms
-process.load("JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff")
+#process.load("JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff") # 2022 data
+process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
 #
 
 #################################### INPUT FILE ##################################
