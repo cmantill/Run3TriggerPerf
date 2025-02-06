@@ -560,7 +560,7 @@ void NanoAnalyzerDoubleEle::analyze(const edm::Event& iEvent, const edm::EventSe
 	      if(HLTtriggers_->accept(i)){
 	        isTriggered = true;
 	        DoubleEle_fired[j]=1;
-	        // std::cout << "Event = " << event << " : DoubleEle_fired[j] fired for j = " << j << std::endl;
+		std::cout << "Event = " << event << " : DoubleEle_fired[j] fired for j = " << j << std::endl;
 	      }
       }
     }
@@ -584,7 +584,7 @@ void NanoAnalyzerDoubleEle::analyze(const edm::Event& iEvent, const edm::EventSe
   trg_obj_collection.clear();
   electronmatched.clear();
 
-  // std::cout << "event = " << event << ", electrons_->size() = " << electrons_->size() << std::endl;
+  std::cout << "event = " << event << ", electrons_->size() = " << electrons_->size() << std::endl;
 
   // Offline electrons
   for(size_t ielectron = 0; ielectron < electrons_->size(); ++ ielectron){
@@ -658,7 +658,7 @@ void NanoAnalyzerDoubleEle::analyze(const edm::Event& iEvent, const edm::EventSe
       
     }  // Loop over trigger objects
   
-    // std::cout << "After objects loop, best_match_obj => " << best_match_obj.pt() << " " << best_match_obj.eta() << " " << best_match_obj.phi() << std::endl;
+    std::cout << "After objects loop, best_match_obj => " << best_match_obj.pt() << " " << best_match_obj.eta() << " " << best_match_obj.phi() << std::endl;
 
 
     // This is to further process 
@@ -755,7 +755,7 @@ void NanoAnalyzerDoubleEle::analyze(const edm::Event& iEvent, const edm::EventSe
         mcidx_trgobj2 = this_mcidx_trgobj2;
         jpsi_tlv_highest = tlv_jpsi;
       }
-      // std::cout << "jpsi_mass = " << jpsi_mass << ", jpsi_max_pt = " << jpsi_max_pt << ", jpsi_pt = " << jpsi_pt << std::endl;      
+      std::cout << "jpsi_mass = " << jpsi_mass << ", jpsi_max_pt = " << jpsi_max_pt << ", jpsi_pt = " << jpsi_pt << std::endl;      
       // std::cout << "event = " << event << "; In the loop: mcidx_e1 = " << mcidx_e1 << ", mcidx_e2 = " << mcidx_e2 << std::endl;
     }
   }

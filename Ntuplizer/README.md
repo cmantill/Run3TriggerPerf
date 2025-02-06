@@ -1,9 +1,9 @@
 # Setup
 ```bash
-cmsrel CMSSW_12_4_3
+cmsrel CMSSW 13_0_6
 cd $CMSSW_BASE/src
 cmsenv
-git clone git@github.com:DiElectronX/Run3TriggerPerf.git
+git clone git@github.com:cmantill/Run3TriggerPerf.git
 cd Run3TriggerPerf/Ntuplizer/
 scram b -j 8
 
@@ -11,39 +11,42 @@ scram b -j 8
 # Local Run
 for Double Electron
 ```bash
-cmsRun nanoanalyzercrab_cfg_22_DoubleEle.py
+cmsRun nanoanalyzercrab_cfg_23_DoubleEle_for_singleEleEff.py
 ```
-The file to edit for Double Electron is plugins/NanoAnalyzer.cc
+The file to edit for Double Electron is plugins/NanoAnalyzer.cc. Recompile with `scram b -j 8` when changes are made.
 
-
-
-for Single Muon
-```bash
-cmsRun nanoanalyzercrab_cfg_22_Single.py
-```
-The file to edit for Single Mu is plugins/NanoAnalyzerSingleMu.cc
+The output will be a file with a TTree (by default named `JPsi_ElePlusJet_controlTrigger.root`).
 
 # CRAB job
-To run crab job just submit crab.py file using
+
+## Datasets
+```
+datasets = {
+    "2023_DoubleElectron_B": [
+        "/ParkingDoubleElectronLowMass/Run2023B-22Sep2023-v1/MINIAOD",
+    ],
+    "2023_DoubleElectron_C": [
+        "/ParkingDoubleElectronLowMass/Run2023C-22Sep2023_v1-v1/MINIAOD",
+        "/ParkingDoubleElectronLowMass/Run2023C-22Sep2023_v2-v1/MINIAOD",
+        "/ParkingDoubleElectronLowMass/Run2023C-22Sep2023_v3-v1/MINIAOD",
+        "/ParkingDoubleElectronLowMass/Run2023C-22Sep2023_v4-v1/MINIAOD",
+    ],
+    "2023_DoubleElectron_D": [
+        "/ParkingDoubleElectronLowMass/Run2023D-22Sep2023_v1-v1/MINIAOD",
+        "/ParkingDoubleElectronLowMass/Run2023D-22Sep2023_v2-v1/MINIAOD",
+    ],
+}
+```
+
+To run crab jobs just submit crab.py file using:
 ```bash
 crab submit crab.py
 ```
-As the output is a flat ntuple it must be stored using
+
+Change the following:
 ```python
-config.Site.storageSite = 'T3_CH_CERNBOX'
-config.Data.outLFNDirBase = '/store/user/jodedra/Run3SingleMunotrigmatch/20220831/'
+config.Site.storageSite # this needs to be changed depending on the site where it is stored.
+config.Data.outLFNDirBase # location where it is stored ( directory name) CHANGE USERNAME
 ```
-The outLFNDirBase will be the location where it is stored.
-Crab jobs must be submitted for each PD
 
-
-# MC SAMPLES LOCATIONS ZERO PU
-BTOjpsiKEE
-/BuTOjpsiKEE20220831fiftyMbettersplitting/jodedra-SUMMER22_MINIAOD-d5db235e2a58bcae594a314d29cbde75/USER
-https://cmsweb.cern.ch/das/request?input=%2FBuTOjpsiKEE20220831fiftyMbettersplitting%2Fjodedra-SUMMER22_MINIAOD-d5db235e2a58bcae594a314d29cbde75%2FUSER&instance=prod%2Fphys03 
-BTOKEE
-/BuTOKEE20220826bettersplitting/jodedra-SUMMER22_MINIAOD-d5db235e2a58bcae594a314d29cbde75/USER
-https://cmsweb.cern.ch/das/request?input=%2FBuTOKEE20220826bettersplitting%2Fjodedra-SUMMER22_MINIAOD-d5db235e2a58bcae594a314d29cbde75%2FUSER&instance=prod%2Fphys03
-BTOPSI2SKEE
-/BuTOpsi2sKEE20220831fiftyMbettersplitting/jodedra-SUMMER22_MINIAOD-d5db235e2a58bcae594a314d29cbde75/USER
-https://cmsweb.cern.ch/das/request?input=%2FBuTOpsi2sKEE20220831fiftyMbettersplitting%2Fjodedra-SUMMER22_MINIAOD-d5db235e2a58bcae594a314d29cbde75%2FUSER&instance=prod%2Fphys03
+Crab jobs must be submitted for each dataset.
